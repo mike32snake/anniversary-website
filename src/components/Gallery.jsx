@@ -20,8 +20,9 @@ export default function Gallery() {
                         key={src}
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
+                        whileHover={{ scale: 1.05 }}
                         viewport={{ once: true, margin: "100px" }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.3 }}
                         className="break-inside-avoid"
                     >
                         <img
