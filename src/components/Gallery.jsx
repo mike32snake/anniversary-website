@@ -2,19 +2,36 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import images from '../images.json';
 
-export default function Gallery() {
-    // Shuffle images for variety on each load, or just use them as is. 
-    // Let's just take a subset if there are too many (316 is a lot for one page load without virtualization).
-    // For now, let's show the first 50 and maybe add a "Load More" or just show all if performance allows.
-    // 316 images might be heavy. Let's implement a simple visible limit.
+// Import gallery images dynamically
+const galleryImages = import.meta.glob('/public/gallery/*.{jpg,jpeg,JPG,PNG}', {
+    eager: false,
+    as: 'url'
+});
 
+export default function Gallery() {
     const [visibleImages, setVisibleImages] = useState([]);
+    const [allImages, setAllImages] = useState([]);
+    const [loadedCount, setLoadedCount] = useState(50);
 
     useEffect(() => {
-        // Randomize and pick 50 initially
-        const shuffled = [...images].sort(() => 0.5 - Math.random());
+        // Combine featured images and gallery images
+        const galleryPaths = Object.keys(galleryImages).map(path =>
+            path.replace('/public', '')
+        );
+
+        const combined = [...images, ...galleryPaths];
+
+        // Shuffle for variety
+        const shuffled = combined.sort(() => 0.5 - Math.random());
+        setAllImages(shuffled);
         setVisibleImages(shuffled.slice(0, 50));
     }, []);
+
+    const loadMore = () => {
+        const newCount = loadedCount + 30;
+        setVisibleImages(allImages.slice(0, newCount));
+        setLoadedCount(newCount);
+    };
 
     return (
         <section className="py-20 px-4 bg-white">
@@ -26,7 +43,7 @@ export default function Gallery() {
                         key={src}
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "100px" }}
                         transition={{ duration: 0.5 }}
                         className="break-inside-avoid"
                     >
@@ -35,14 +52,28 @@ export default function Gallery() {
                             alt="Memory"
                             className="w-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
                             loading="lazy"
+                            decoding="async"
                         />
                     </motion.div>
                 ))}
             </div>
 
-            <div className="text-center mt-12">
-                <p className="text-gray-500 italic">...and hundreds more memories.</p>
-            </div>
+            {visibleImages.length < allImages.length && (
+                <div className="text-center mt-12">
+                    <button
+                        onClick={loadMore}
+                        className="px-8 py-3 bg-love-red text-white rounded-full font-sans hover:bg-deep-maroon transition-colors duration-300"
+                    >
+                        Load More Memories ({allImages.length - visibleImages.length} remaining)
+                    </button>
+                </div>
+            )}
+
+            {visibleImages.length === allImages.length && allImages.length > 0 && (
+                <div className="text-center mt-12">
+                    <p className="text-gray-500 italic">All {allImages.length} memories loaded ❤️</p>
+                </div>
+            )}
         </section>
     );
 }
