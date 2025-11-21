@@ -2,36 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import images from '../images.json';
 
-// Import gallery images dynamically
-const galleryImages = import.meta.glob('/public/gallery/*.{jpg,jpeg,JPG,PNG}', {
-    eager: false,
-    as: 'url'
-});
-
 export default function Gallery() {
     const [visibleImages, setVisibleImages] = useState([]);
-    const [allImages, setAllImages] = useState([]);
-    const [loadedCount, setLoadedCount] = useState(50);
 
     useEffect(() => {
-        // Combine featured images and gallery images
-        const galleryPaths = Object.keys(galleryImages).map(path =>
-            path.replace('/public', '')
-        );
-
-        const combined = [...images, ...galleryPaths];
-
-        // Shuffle for variety
-        const shuffled = combined.sort(() => 0.5 - Math.random());
-        setAllImages(shuffled);
-        setVisibleImages(shuffled.slice(0, 50));
+        // Use only the curated images from images.json (date-named images)
+        setVisibleImages(images);
     }, []);
-
-    const loadMore = () => {
-        const newCount = loadedCount + 30;
-        setVisibleImages(allImages.slice(0, newCount));
-        setLoadedCount(newCount);
-    };
 
     return (
         <section className="py-20 px-4 bg-white">
@@ -58,22 +35,9 @@ export default function Gallery() {
                 ))}
             </div>
 
-            {visibleImages.length < allImages.length && (
-                <div className="text-center mt-12">
-                    <button
-                        onClick={loadMore}
-                        className="px-8 py-3 bg-love-red text-white rounded-full font-sans hover:bg-deep-maroon transition-colors duration-300"
-                    >
-                        Load More Memories ({allImages.length - visibleImages.length} remaining)
-                    </button>
-                </div>
-            )}
-
-            {visibleImages.length === allImages.length && allImages.length > 0 && (
-                <div className="text-center mt-12">
-                    <p className="text-gray-500 italic">All {allImages.length} memories loaded ❤️</p>
-                </div>
-            )}
+            <div className="text-center mt-12">
+                <p className="text-gray-500 italic">Our favorite {visibleImages.length} memories together</p>
+            </div>
         </section>
     );
 }

@@ -39,17 +39,19 @@ async function optimizeImage(filePath) {
     const image = sharp(filePath);
     const metadata = await image.metadata();
 
+    // Auto-rotate based on EXIF orientation, then strip EXIF (but keep the rotation)
+    let processing = image.rotate();
+
     // Only resize if image is larger than MAX_WIDTH
-    let resized = image;
     if (metadata.width > MAX_WIDTH) {
-      resized = image.resize(MAX_WIDTH, null, {
+      processing = processing.resize(MAX_WIDTH, null, {
         withoutEnlargement: true,
         fit: 'inside'
       });
     }
 
     // Convert to JPEG with optimization
-    await resized
+    await processing
       .jpeg({
         quality: QUALITY,
         progressive: true,
