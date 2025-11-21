@@ -27,8 +27,8 @@ async function optimizeImage(filePath) {
   try {
     const ext = path.extname(filePath).toLowerCase();
 
-    // Only process image files
-    if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
+    // Only process image files (including HEIC)
+    if (!['.jpg', '.jpeg', '.png', '.webp', '.heic'].includes(ext)) {
       return { skipped: true };
     }
 
