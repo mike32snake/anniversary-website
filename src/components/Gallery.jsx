@@ -36,7 +36,7 @@ export default function Gallery() {
             </div>
 
             <div className="text-center mt-12">
-                <p className="text-gray-500 italic">Our favorite {visibleImages.length} memories together</p>
+                <p className="text-gray-500 italic">And countless more memories together</p>
             </div>
         </section>
     );
